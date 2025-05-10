@@ -20,10 +20,10 @@
 
       <div class="box">
          <h3>Contact Us.</h3>
-         <a href="tel:9800000000"><i class="fas fa-phone"></i> +977 980 000 0000</a>
-         <a href="tel:9900000000"><i class="fas fa-phone"></i> +977 974 000 0000</a>
-         <a href="mailto:harshchy143@gmail.com"><i class="fas fa-envelope"></i> harsh.221715@ncit.edu.np</a>
-         <a href="https://www.google.com/myplace"><i class="fas fa-map-marker-alt"></i> Kathmandu, Nepal </a>
+         <a href="tel:9800000000"><i class="fas fa-phone"></i> +94 77 1234020</a>
+         <a href="tel:9900000000"><i class="fas fa-phone"></i> +94 77 1234020</a>
+         <a href="mailto:harshchy143@gmail.com"><i class="fas fa-envelope"></i> Raam.com</a>
+         <a href="https://www.google.com/myplace"><i class="fas fa-map-marker-alt"></i> Sri Lanka </a>
       </div>
 
       <div class="box">
@@ -36,6 +36,6 @@
 
    </section>
 
-   <div class="credit">&copy; copyright @ <?= date('Y'); ?> by <span>HARSH CHAUDHARY</span> | all rights reserved!</div>
+   <div class="credit">&copy; copyright @ <?= date('Y'); ?> by <span> K.N RAAM hardware | all rights reserved!</div>
 
 </footer>
