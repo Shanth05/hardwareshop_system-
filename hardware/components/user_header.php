@@ -15,7 +15,7 @@
 
    <section class="flex">
 
-      <a href="home.php" class="logo">KinBech<span>.Com</span></a>
+      <a href="home.php" class="logo"> K.N RAAM hardware<span>hardware</span></a>
 
       <nav class="navbar">
          <a href="home.php">Home</a>
