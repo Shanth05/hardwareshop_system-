@@ -1,14 +1,16 @@
 <?php
-   if(isset($message)){
-      foreach($message as $message){
-         echo '
-         <div class="message">
-            <span>'.$message.'</span>
+declare(strict_types=1);
+
+if (!empty($message)) {
+    foreach ($message as $msg) {
+        echo '
+        <div class="message">
+            <span>' . htmlspecialchars($msg) . '</span>
             <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
-         </div>
-         ';
-      }
-   }
+        </div>
+        ';
+    }
+}
 ?>
 
 <header class="header">
@@ -37,7 +39,7 @@
             $select_profile->execute([$admin_id]);
             $fetch_profile = $select_profile->fetch(PDO::FETCH_ASSOC);
          ?>
-         <p><?= $fetch_profile['name']; ?></p>
+         <p><?= htmlspecialchars($fetch_profile['name'] ?? 'Admin'); ?></p>
          <a href="../admin/update_profile.php" class="btn">Update Profile</a>
          <div class="flex-btn">
             <a href="../admin/register_admin.php" class="option-btn">Register</a>
