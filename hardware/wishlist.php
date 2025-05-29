@@ -1,20 +1,20 @@
 <?php
+declare(strict_types=1);
 
 include 'components/connect.php';
 
 session_start();
 
-if(isset($_SESSION['user_id'])){
-   $user_id = $_SESSION['user_id'];
-}else{
-   $user_id = '';
+$user_id = $_SESSION['user_id'] ?? '';
+if ($user_id === '') {
    header('location:user_login.php');
-};
+   exit;
+}
 
 include 'components/wishlist_cart.php';
 
 if(isset($_POST['delete'])){
-   $wishlist_id = $_POST['wishlist_id'];
+   $wishlist_id = filter_input(INPUT_POST, 'wishlist_id', FILTER_SANITIZE_NUMBER_INT);
    $delete_wishlist_item = $conn->prepare("DELETE FROM `wishlist` WHERE id = ?");
    $delete_wishlist_item->execute([$wishlist_id]);
 }
@@ -23,6 +23,7 @@ if(isset($_GET['delete_all'])){
    $delete_wishlist_item = $conn->prepare("DELETE FROM `wishlist` WHERE user_id = ?");
    $delete_wishlist_item->execute([$user_id]);
    header('location:wishlist.php');
+   exit;
 }
 
 ?>
@@ -61,16 +62,16 @@ if(isset($_GET['delete_all'])){
             $grand_total += $fetch_wishlist['price'];  
    ?>
    <form action="" method="post" class="box">
-      <input type="hidden" name="pid" value="<?= $fetch_wishlist['pid']; ?>">
-      <input type="hidden" name="wishlist_id" value="<?= $fetch_wishlist['id']; ?>">
-      <input type="hidden" name="name" value="<?= $fetch_wishlist['name']; ?>">
-      <input type="hidden" name="price" value="<?= $fetch_wishlist['price']; ?>">
-      <input type="hidden" name="image" value="<?= $fetch_wishlist['image']; ?>">
-      <a href="quick_view.php?pid=<?= $fetch_wishlist['pid']; ?>" class="fas fa-eye"></a>
-      <img src="uploaded_img/<?= $fetch_wishlist['image']; ?>" alt="">
-      <div class="name"><?= $fetch_wishlist['name']; ?></div>
+      <input type="hidden" name="pid" value="<?= htmlspecialchars($fetch_wishlist['pid']); ?>">
+      <input type="hidden" name="wishlist_id" value="<?= htmlspecialchars($fetch_wishlist['id']); ?>">
+      <input type="hidden" name="name" value="<?= htmlspecialchars($fetch_wishlist['name']); ?>">
+      <input type="hidden" name="price" value="<?= htmlspecialchars($fetch_wishlist['price']); ?>">
+      <input type="hidden" name="image" value="<?= htmlspecialchars($fetch_wishlist['image']); ?>">
+      <a href="quick_view.php?pid=<?= htmlspecialchars($fetch_wishlist['pid']); ?>" class="fas fa-eye"></a>
+      <img src="uploaded_img/<?= htmlspecialchars($fetch_wishlist['image']); ?>" alt="">
+      <div class="name"><?= htmlspecialchars($fetch_wishlist['name']); ?></div>
       <div class="flex">
-         <div class="price">Nrs.<?= $fetch_wishlist['price']; ?>/-</div>
+         <div class="price">Nrs.<?= htmlspecialchars($fetch_wishlist['price']); ?>/-</div>
          <input type="number" name="qty" class="qty" min="1" max="99" onkeypress="if(this.value.length == 2) return false;" value="1">
       </div>
       <input type="submit" value="add to cart" class="btn" name="add_to_cart">
@@ -85,24 +86,12 @@ if(isset($_GET['delete_all'])){
    </div>
 
    <div class="wishlist-total">
-      <p>Grand Total : <span>Nrs.<?= $grand_total; ?>/-</span></p>
+      <p>Grand Total : <span>Nrs.<?= htmlspecialchars((string)$grand_total); ?>/-</span></p>
       <a href="shop.php" class="option-btn">Continue Shopping.</a>
       <a href="wishlist.php?delete_all" class="delete-btn <?= ($grand_total > 1)?'':'disabled'; ?>" onclick="return confirm('delete all from wishlist?');">delete all item</a>
    </div>
 
 </section>
-
-
-
-
-
-
-
-
-
-
-
-
 
 <?php include 'components/footer.php'; ?>
 
