@@ -1,14 +1,11 @@
 <?php
+declare(strict_types=1);
 
 include 'components/connect.php';
 
 session_start();
 
-if(isset($_SESSION['user_id'])){
-   $user_id = $_SESSION['user_id'];
-}else{
-   $user_id = '';
-};
+$user_id = $_SESSION['user_id'] ?? '';
 
 ?>
 
@@ -38,7 +35,7 @@ if(isset($_SESSION['user_id'])){
    <div class="box-container">
 
    <?php
-      if($user_id == ''){
+      if($user_id === ''){
          echo '<p class="empty">please login to see your orders</p>';
       }else{
          $select_orders = $conn->prepare("SELECT * FROM `orders` WHERE user_id = ?");
@@ -47,15 +44,16 @@ if(isset($_SESSION['user_id'])){
             while($fetch_orders = $select_orders->fetch(PDO::FETCH_ASSOC)){
    ?>
    <div class="box">
-      <p>Placed on : <span><?= $fetch_orders['placed_on']; ?></span></p>
-      <p>Name : <span><?= $fetch_orders['name']; ?></span></p>
-      <p>Email : <span><?= $fetch_orders['email']; ?></span></p>
-      <p>Phone Number : <span><?= $fetch_orders['number']; ?></span></p>
-      <p>Address : <span><?= $fetch_orders['address']; ?></span></p>
-      <p>Payment Method : <span><?= $fetch_orders['method']; ?></span></p>
-      <p>Your orders : <span><?= $fetch_orders['total_products']; ?></span></p>
-      <p>Total price : <span>Nrs.<?= $fetch_orders['total_price']; ?>/-</span></p>
-      <p> Payment status : <span style="color:<?php if($fetch_orders['payment_status'] == 'pending'){ echo 'red'; }else{ echo 'green'; }; ?>"><?= $fetch_orders['payment_status']; ?></span> </p>
+      <p>Placed on : <span><?= htmlspecialchars($fetch_orders['placed_on']); ?></span></p>
+      <p>Name : <span><?= htmlspecialchars($fetch_orders['name']); ?></span></p>
+      <p>Email : <span><?= htmlspecialchars($fetch_orders['email']); ?></span></p>
+      <p>Phone Number : <span><?= htmlspecialchars($fetch_orders['number']); ?></span></p>
+      <p>Address : <span><?= htmlspecialchars($fetch_orders['address']); ?></span></p>
+      <p>Payment Method : <span><?= htmlspecialchars($fetch_orders['method']); ?></span></p>
+      <p>Your orders : <span><?= htmlspecialchars($fetch_orders['total_products']); ?></span></p>
+      <p>Total price : <span>Nrs.<?= htmlspecialchars($fetch_orders['total_price']); ?>/-</span></p>
+      <p> Payment status : <span style="color:<?= $fetch_orders['payment_status'] === 'pending' ? 'red' : 'green'; ?>">
+         <?= htmlspecialchars($fetch_orders['payment_status']); ?></span> </p>
    </div>
    <?php
       }
@@ -68,18 +66,6 @@ if(isset($_SESSION['user_id'])){
    </div>
 
 </section>
-
-
-
-
-
-
-
-
-
-
-
-
 
 <?php include 'components/footer.php'; ?>
 

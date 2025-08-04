@@ -1,21 +1,23 @@
 <?php
-   if(isset($message)){
-      foreach($message as $message){
-         echo '
-         <div class="message">
-            <span>'.$message.'</span>
+declare(strict_types=1);
+
+if (!empty($message)) {
+    foreach ($message as $msg) {
+        echo '
+        <div class="message">
+            <span>' . htmlspecialchars($msg) . '</span>
             <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
-         </div>
-         ';
-      }
-   }
+        </div>
+        ';
+    }
+}
 ?>
 
 <header class="header">
 
    <section class="flex">
 
-      <a href="home.php" class="logo">KinBech<span>.Com</span></a>
+      <a href="home.php" class="logo"> K.N RAAM  <span>hardware</span></a>
 
       <nav class="navbar">
          <a href="home.php">Home</a>
@@ -27,11 +29,11 @@
 
       <div class="icons">
          <?php
-            $count_wishlist_items = $conn->prepare("SELECT * FROM `wishlist` WHERE user_id = ?");
+            $count_wishlist_items = $conn->prepare("SELECT * FROM wishlist WHERE user_id = ?");
             $count_wishlist_items->execute([$user_id]);
             $total_wishlist_counts = $count_wishlist_items->rowCount();
 
-            $count_cart_items = $conn->prepare("SELECT * FROM `cart` WHERE user_id = ?");
+            $count_cart_items = $conn->prepare("SELECT * FROM cart WHERE user_id = ?");
             $count_cart_items->execute([$user_id]);
             $total_cart_counts = $count_cart_items->rowCount();
          ?>
@@ -44,12 +46,12 @@
 
       <div class="profile">
          <?php          
-            $select_profile = $conn->prepare("SELECT * FROM `users` WHERE id = ?");
+            $select_profile = $conn->prepare("SELECT * FROM users WHERE id = ?");
             $select_profile->execute([$user_id]);
             if($select_profile->rowCount() > 0){
-            $fetch_profile = $select_profile->fetch(PDO::FETCH_ASSOC);
+                $fetch_profile = $select_profile->fetch(PDO::FETCH_ASSOC);
          ?>
-         <p><?= $fetch_profile["name"]; ?></p>
+         <p><?= htmlspecialchars($fetch_profile["name"] ?? 'User'); ?></p>
          <a href="update_user.php" class="btn">Update Profile.</a>
          <div class="flex-btn">
             <a href="user_register.php" class="option-btn">Register.</a>
@@ -67,8 +69,6 @@
          <?php
             }
          ?>      
-         
-         
       </div>
 
    </section>
