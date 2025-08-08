@@ -1,5 +1,7 @@
 <?php
+session_start();
 include('includes/login_check.php');
+
 $user_id = $_SESSION['customer_id'];
 
 $conn = mysqli_connect("localhost", "root", "", "kn_raam_hardware");
