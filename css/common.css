@@ -1,0 +1,68 @@
+:root{
+    --teal:#2ec1ac;
+    --teal_hover:#279e8c;
+}
+
+*{
+        
+}
+.h-font{
+
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+-moz-appearance: textfield;
+}
+
+.custom-bg{
+background-color: var(--teal);
+}
+
+.custom-bg:hover{
+background-color: var(--teal_hover);
+}
+
+.availability-form{
+margin-top: -50px;
+z-index:2;
+position: relative;
+}
+
+@media screen and (max-width:575px){
+.availability-form{
+margin-top:0px;
+padding:0 35px;
+}
+}
+
+.h-line{
+    width:158px;
+    height:1.7px ;
+    margin:0 auto;
+}
+
+.custom-alert{
+    position: fixed;
+    top:25px;
+    right: 25px;
+}
+
+#dashbard-menu{
+    position: fixed;
+    height: 100%;
+}
+@media screen and (max-width:992px){
+    #dashbard-menu{
+        height: auto;
+        width:100%;
+    }
+    #main-content{
+        margin-top: 60px;
+    }
+}
