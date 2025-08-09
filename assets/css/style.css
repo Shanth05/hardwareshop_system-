@@ -1,0 +1,128 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa;
+}
+
+.nav-link {
+  position: relative;
+  transition: color 0.3s ease-in-out;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #000;
+  transition: width 0.3s ease-in-out;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.navbar {
+  animation: slideDown 0.5s ease-in-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.hero {
+  padding: 100px 0;
+  text-align: center;
+}
+
+.hero h1 {
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.hero .btn {
+  margin-top: 20px;
+  padding: 12px 30px;
+  font-weight: 600;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar{
+    position: fixed;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background: #09567a;
+}
+.sidebar header{
+    font-size: 2.5rem;
+    color: azure;
+    text-align: center;
+    line-height: 70px;
+    background:  #2d9acc;
+    user-select: none;
+
+}
+.sidebar ul li{
+    display: block;
+    height: 100%;
+    width: 100%;
+    line-height:65px;
+    font-size: 20px;
+    color: azure;
+    padding-left: 40px;
+    box-sizing: border-box;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar ul li a{
+    color: azure;
+    text-decoration: none;
+    font-size: 20px;
+}
+
+.sidebar ul li:hover{
+    background-color: #0f3c52;;
+}
+
+.sidebar ul li:hover a{
+    padding-left: 10px;
+    transition: .2s linear;
+}
+.content{
+    /*float: right;*/
+    padding-left: 250px;
+}
+
+/* Equal height columns on contact page */
+.row.align-equal > [class*='col-'] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make textarea fill available vertical space */
+form.flex-grow-1 .form-control.h-100 {
+  height: 100% !important;
+}
+
+/* Push submit button to bottom of form */
+form.flex-grow-1 button[type="submit"] {
+  margin-top: auto;
+}
