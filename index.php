@@ -29,6 +29,9 @@ session_start();
   <a href="products.php" class="btn btn-dark">Shop Now</a>
 </div>
 
+<!-- Footer -->
+<?php include('includes/footer.php'); ?>
+
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
