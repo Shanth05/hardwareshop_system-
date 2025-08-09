@@ -1,90 +1,144 @@
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: #f8f9fa;
-}
-
-.nav-link {
-  position: relative;
-  transition: color 0.3s ease-in-out;
-}
-
-.nav-link::after {
-  content: "";
-  position: absolute;
-  width: 0%;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: #000;
-  transition: width 0.3s ease-in-out;
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.navbar {
-  animation: slideDown 0.5s ease-in-out;
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.hero {
-  padding: 100px 0;
-  text-align: center;
-}
-
-.hero h1 {
-  font-weight: 700;
-  margin-bottom: 20px;
-}
-
-.hero p {
-  font-size: 1.2rem;
-  color: #555;
-}
-
-.hero .btn {
-  margin-top: 20px;
-  padding: 12px 30px;
-  font-weight: 600;
-}
-
-*{
+/* -------------------- Global Styles -------------------- */
+/* Reset margin and padding on all elements */
+* {
     margin: 0;
     padding: 0;
 }
 
-.sidebar{
+/* Body font and background */
+body { 
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* -------------------- Navbar -------------------- */
+/* Nav link base styles with smooth underline transition */
+.nav-link {
+    position: relative;
+    transition: color 0.3s ease-in-out;
+}
+
+/* Underline effect on nav links */
+.nav-link::after {
+    content: "";
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #fff; /* Matches navbar text color */
+    transition: width 0.3s ease-in-out;
+}
+
+/* Expand underline on hover */
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Navbar entrance animation */
+.navbar {
+    animation: slideDown 0.5s ease-in-out;
+}
+
+/* Add horizontal spacing between nav links */
+.navbar-nav .nav-link {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+/* Active nav-link color - gold */
+.nav-link.active {
+    color: #ffd700 !important; /* Gold color for active page */
+    font-weight: 600;
+}
+
+/* -------------------- Keyframes -------------------- */
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* -------------------- Hero Section -------------------- */
+/* Vertical padding and center text */
+.hero {
+    padding: 100px 0;
+    text-align: center;
+}
+
+/* Hero main heading: bold and navy blue */
+.hero h1 {
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #003366; /* Navy blue */
+}
+
+/* Hero paragraph: readable neutral gray */
+.hero p {
+    font-size: 1.2rem;
+    color: #555; /* Neutral tone */
+}
+
+/* Hero button: orange background with padding */
+.hero .btn {
+    margin-top: 20px;
+    padding: 12px 30px;
+    font-weight: 600;
+    background-color: #ff8800; /* Orange accent */
+    border-color: #ff8800;
+    color: #fff;
+}
+
+/* Button hover: slightly darker orange */
+.hero .btn:hover {
+    background-color: #e67700;
+    border-color: #e67700;
+}
+
+/* -------------------- Footer -------------------- */
+/* Footer background, text color, and padding */
+.footer {
+    background-color: #0d6efd; /* Brand blue */
+    color: #fff;
+    text-align: center;
+    padding: 15px 0;
+}
+
+/* Footer text size */
+.footer span {
+    font-size: 0.95rem;
+}
+
+/* -------------------- Sidebar -------------------- */
+/* Sidebar fixed positioning and size */
+.sidebar {
     position: fixed;
     left: 0;
     width: 250px;
     height: 100%;
     background: #09567a;
 }
-.sidebar header{
+
+/* Sidebar header styling */
+.sidebar header {
     font-size: 2.5rem;
     color: azure;
     text-align: center;
     line-height: 70px;
-    background:  #2d9acc;
+    background: #2d9acc;
     user-select: none;
-
 }
-.sidebar ul li{
+
+/* Sidebar list items */
+.sidebar ul li {
     display: block;
-    height: 100%;
     width: 100%;
-    line-height:65px;
+    line-height: 65px;
     font-size: 20px;
     color: azure;
     padding-left: 40px;
@@ -92,37 +146,131 @@ body {
     border-top: 1px solid rgba(255,255,255,0.1);
 }
 
-.sidebar ul li a{
+/* Sidebar links */
+.sidebar ul li a {
     color: azure;
     text-decoration: none;
     font-size: 20px;
 }
 
-.sidebar ul li:hover{
-    background-color: #0f3c52;;
+/* Sidebar hover effect */
+.sidebar ul li:hover {
+    background-color: #0f3c52;
 }
 
-.sidebar ul li:hover a{
+/* Sidebar link hover padding transition */
+.sidebar ul li:hover a {
     padding-left: 10px;
     transition: .2s linear;
 }
-.content{
-    /*float: right;*/
+
+/* Content padding to prevent overlap with sidebar */
+.content {
     padding-left: 250px;
 }
 
-/* Equal height columns on contact page */
+/* -------------------- Contact Page Helpers -------------------- */
+/* Flex equal height columns */
 .row.align-equal > [class*='col-'] {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Make textarea fill available vertical space */
 form.flex-grow-1 .form-control.h-100 {
-  height: 100% !important;
+    height: 100% !important;
 }
 
 /* Push submit button to bottom of form */
 form.flex-grow-1 button[type="submit"] {
-  margin-top: auto;
+    margin-top: auto;
+}
+
+/* -------------------- About Page Styles -------------------- */
+/* Title styling with font family and spacing */
+.about-title {
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 0.5rem;
+}
+
+/* Blue horizontal divider below the title */
+.about-divider {
+    width: 80px;
+    height: 4px;
+    background-color: #0d6efd; /* Bootstrap primary blue */
+    margin: 0 auto 40px auto;
+    border-radius: 2px;
+}
+
+/* About page image styling */
+.about-img {
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.2); /* subtle blue shadow */
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+/* About page text paragraphs */
+.about-text p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #333;
+    margin-bottom: 1.3rem;
+}
+
+/* Highlighted paragraph for emphasis */
+.about-highlight {
+    font-weight: 600;
+    color: #ff8800; /* Orange accent */
+    font-size: 1.15rem;
+    margin-top: 40px;
+    text-align: center;
+}
+
+/* Responsive styles for smaller screens */
+@media (max-width: 767px) {
+    .about-img {
+        height: auto;
+        margin-bottom: 30px;
+    }
+}
+
+/* -------------------- Contact Page Styles -------------------- */
+/* Intro paragraph styling */
+.contact-intro {
+  font-size: 1.1rem;
+  color: #444;
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+  line-height: 1.6;
+}
+
+/* Contact form minimum height */
+.contact-form {
+  min-height: 400px;
+}
+
+/* Contact info text styling */
+.contact-info p {
+  font-size: 1rem;
+  color: #222;
+}
+
+/* Responsive embedded map container */
+.map-responsive {
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+}
+
+/* Responsive iframe inside map container */
+.map-responsive iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
