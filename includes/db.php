@@ -2,7 +2,7 @@
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db = 'knraam_hardware';
+$db = 'kn_raam_hardware'; // Ensure this matches the actual database name
 
 $conn = new mysqli($host, $user, $pass, $db);
 
