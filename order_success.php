@@ -45,16 +45,35 @@ mysqli_stmt_bind_param($stmt_items, "i", $order_id);
 mysqli_stmt_execute($stmt_items);
 $items_res = mysqli_stmt_get_result($stmt_items);
 
+// Calculate total items if not stored in order
+$total_items = 0;
+if ($items_res) {
+    foreach (mysqli_fetch_all($items_res, MYSQLI_ASSOC) as $item) {
+        $total_items += $item['qty'];
+    }
+    // Reset pointer after fetch_all so while loop below works
+    mysqli_data_seek($items_res, 0);
+}
+
+// Use total_price from DB or calculate it
+$total_price = isset($order['total_price']) ? $order['total_price'] : 0;
+if (empty($total_price)) {
+    $total_price = 0;
+    foreach (mysqli_fetch_all($items_res, MYSQLI_ASSOC) as $item) {
+        $total_price += $item['qty'] * $item['price'];
+    }
+    mysqli_data_seek($items_res, 0);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Order Success - K.N. Raam Hardware</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
-    <link href="assets/css/style.css?v=<?php echo time(); ?>" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" />
+    <link href="assets/css/style.css?v=<?= time(); ?>" rel="stylesheet" />
 </head>
 <body>
 <?php include('includes/navbar.php'); ?>
@@ -73,17 +92,18 @@ $items_res = mysqli_stmt_get_result($stmt_items);
                     <div class="row">
                         <!-- Left Column -->
                         <div class="col-md-6 mb-3">
-                            <p><strong><i class="fas fa-hashtag me-1"></i>Order ID:</strong> #<?= htmlspecialchars((string)$order['order_id']); ?></p>
+                            <p><strong><i class="fas fa-hashtag me-1"></i>Order No:</strong> <?= htmlspecialchars((string)$order['order_id']); ?></p>
                             <p><strong><i class="fas fa-user me-1"></i>Name:</strong> <?= htmlspecialchars($order['name']); ?></p>
                             <p><strong><i class="fas fa-envelope me-1"></i>Email:</strong> <?= htmlspecialchars($order['mail']); ?></p>
                             <p><strong><i class="fas fa-phone me-1"></i>Contact No:</strong> <?= htmlspecialchars($order['contact_no']); ?></p>
-                        </div>
-                        <!-- Right Column -->
-                        <div class="col-md-6 mb-3">
                             <p><strong><i class="fas fa-map-marker-alt me-1"></i>Address:</strong> <?= htmlspecialchars($order['address']); ?></p>
                             <p><strong><i class="fas fa-credit-card me-1"></i>Payment Method:</strong> <?= htmlspecialchars($order['payment_method'] === 'online' ? 'Pay Online (Card)' : 'Cash on Delivery'); ?></p>
-                            <p><strong><i class="fas fa-shopping-cart me-1"></i>Total Items:</strong> <?= htmlspecialchars((string)$order['total_items']); ?></p>
-                            <p><strong><i class="fas fa-money-bill-wave me-1"></i>Total Price:</strong> LKR <?= number_format((float)$order['total_price'], 2); ?></p>
+                        </div>
+                        
+                        <!-- Right Column -->
+                        <div class="col-md-6 mb-3">
+                            <p><strong><i class="fas fa-shopping-cart me-1"></i>Total Items:</strong> <?= htmlspecialchars((string)$total_items); ?></p>
+                            <p><strong><i class="fas fa-money-bill-wave me-1"></i>Total Price:</strong> LKR <?= number_format((float)$total_price, 2); ?></p>
                             <p><strong><i class="fas fa-info-circle me-1"></i>Order Status:</strong> <?= htmlspecialchars(ucfirst($order['order_status'])); ?></p>
                             <p><strong><i class="fas fa-calendar-alt me-1"></i>Order Date:</strong> <?= htmlspecialchars($order['order_date']); ?></p>
                         </div>
@@ -95,8 +115,8 @@ $items_res = mysqli_stmt_get_result($stmt_items);
                             <tr class="bg-brandblue text-white">
                                 <th>Product</th>
                                 <th>Qty</th>
-                                <th>Unit Price (LKR)</th>
-                                <th>Total (LKR)</th>
+                                <th class="product-price">Unit Price (LKR)</th>
+                                <th class="product-price">Total (LKR)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -111,7 +131,7 @@ $items_res = mysqli_stmt_get_result($stmt_items);
                         </tbody>
                     </table>
 
-                    <div class="text-end">
+                    <div class="text-end mt-3">
                         <a href="index.php" class="btn btn-checkout"><i class="fas fa-shopping-bag me-2"></i>Continue Shopping</a>
                     </div>
                 </div>
