@@ -14,7 +14,7 @@ if ($conn->connect_error) {
 // Fetch user name for navbar if logged in
 $user_name = '';
 if ($user_id) {
-    $stmt = $conn->prepare("SELECT name FROM users WHERE user_id = ?");
+    $stmt = $conn->prepare("SELECT username FROM users WHERE user_id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $stmt->bind_result($user_name);
