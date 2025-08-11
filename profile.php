@@ -27,6 +27,7 @@ if (isset($_POST['update_profile'])) {
     if ($stmt->execute()) {
         $_SESSION['username'] = $username; // Update session username if changed
         echo '<script>alert("Profile updated successfully."); window.location.href="profile.php";</script>';
+        exit;
     } else {
         echo '<script>alert("Failed to update profile.");</script>';
     }
@@ -51,6 +52,7 @@ if (isset($_POST['update_password'])) {
             $stmt_update->bind_param("si", $new_password, $user_id);
             if ($stmt_update->execute()) {
                 echo '<script>alert("Password updated successfully."); window.location.href="profile.php";</script>';
+                exit;
             } else {
                 echo '<script>alert("Failed to update password.");</script>';
             }
@@ -140,7 +142,7 @@ include('includes/header.php');
             <thead class="table-primary">
                 <tr>
                     <th>#</th>
-                    <th>Order ID</th>
+                    <th>Order No</th>
                     <th>Total Items</th>
                     <th>Total Price</th>
                     <th>Shipping Address</th>
@@ -151,7 +153,7 @@ include('includes/header.php');
             </thead>
             <tbody>
                 <?php
-                $stmt = $conn->prepare("SELECT order_id, total_items, total_price, address, order_status, order_date FROM orders WHERE user_id = ? ORDER BY order_date DESC");
+                $stmt = $conn->prepare("SELECT order_id, total_items, total_price, address, order_status, order_date FROM orders WHERE user_id = ? ORDER BY order_id DESC");
                 $stmt->bind_param("i", $user_id);
                 $stmt->execute();
                 $res = $stmt->get_result();
@@ -159,25 +161,36 @@ include('includes/header.php');
                 if ($res->num_rows > 0):
                     $sn = 1;
                     while ($row = $res->fetch_assoc()):
-                        $statusClass = match ($row['order_status']) {
-                            "ordered" => "text-danger",
-                            "processing" => "text-primary",
-                            default => "text-success",
+                        $order_status = strtolower($row['order_status'] ?? '');
+
+                        if ($order_status === '') {
+                            $displayStatus = 'Pending';
+                        } elseif ($order_status === 'cancelled') {
+                            $displayStatus = 'Cancelled';
+                        } else {
+                            $displayStatus = ucfirst($order_status);
+                        }
+
+                        $statusClass = match ($order_status) {
+                            "ordered" => "text-success",     // green
+                            "processing" => "text-primary",  // blue
+                            "cancelled" => "text-danger fw-bold", // red bold
+                            default => "",
                         };
                 ?>
                 <tr>
                     <td><?= $sn++ ?></td>
-                    <td><?= htmlspecialchars($row['order_id']) ?></td>
-                    <td><?= htmlspecialchars($row['total_items']) ?></td>
-                    <td><?= number_format($row['total_price'], 2) ?></td>
-                    <td><?= htmlspecialchars($row['address']) ?></td>
-                    <td class="<?= $statusClass ?>"><?= htmlspecialchars($row['order_status']) ?></td>
-                    <td><?= htmlspecialchars(date('Y-m-d', strtotime($row['order_date']))) ?></td>
+                    <td><?= htmlspecialchars($row['order_id'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['total_items'] ?? '0') ?></td>
+                    <td><?= number_format($row['total_price'] ?? 0, 2) ?></td>
+                    <td><?= htmlspecialchars($row['address'] ?? '') ?></td>
+                    <td class="<?= $statusClass ?>"><?= $displayStatus ?></td>
+                    <td><?= htmlspecialchars(date('Y-m-d', strtotime($row['order_date'] ?? ''))) ?></td>
                     <td>
-                        <?php if ($row['order_status'] === 'ordered' || $row['order_status'] === 'processing'): ?>
-                            <a href="cancel_order.php?order_id=<?= urlencode($row['order_id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel</a>
+                        <?php if ($order_status === 'ordered' || $order_status === 'processing'): ?>
+                            <a href="cancel_order.php?order_id=<?= urlencode($row['order_id'] ?? '') ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel</a>
                         <?php else: ?>
-                            <span class="text-muted">N/A</span>
+                            <span class="text-muted">—</span>
                         <?php endif; ?>
                     </td>
                 </tr>
