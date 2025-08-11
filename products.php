@@ -1,13 +1,6 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['customer_id'])) {
-    header('Location: login.php');
-    exit();
-}
-
-$user_id = $_SESSION['customer_id'];
-
 $conn = mysqli_connect("localhost", "root", "", "kn_raam_hardware");
 if (!$conn) {
     die("Database connection failed: " . mysqli_connect_error());
@@ -15,6 +8,14 @@ if (!$conn) {
 
 // Handle Add to Cart form submission
 if (isset($_POST['add_to_cart'])) {
+    // Check if user logged in
+    if (!isset($_SESSION['customer_id'])) {
+        // Redirect to login with alert message
+        echo '<script>alert("Please login to add products to cart."); window.location.href="login.php";</script>';
+        exit();
+    }
+
+    $user_id = $_SESSION['customer_id'];
     $product_id = intval($_POST['product_id']);
     $qty = intval($_POST['qty']);
     if ($qty < 1) $qty = 1;
