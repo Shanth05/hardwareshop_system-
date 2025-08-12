@@ -40,7 +40,6 @@ if (isset($_POST['update_password'])) {
     $new_password = md5($_POST['new_password']);
     $confirm_password = md5($_POST['confirm_password']);
 
-    // Verify current password
     $stmt = $conn->prepare("SELECT user_id FROM users WHERE user_id=? AND password=?");
     $stmt->bind_param("is", $user_id, $current_password);
     $stmt->execute();
@@ -153,7 +152,20 @@ include('includes/header.php');
             </thead>
             <tbody>
                 <?php
-                $stmt = $conn->prepare("SELECT order_id, total_items, total_price, address, order_status, order_date FROM orders WHERE user_id = ? ORDER BY order_id DESC");
+                // FIX: Calculate total_items dynamically from order_items table
+                $stmt = $conn->prepare("
+                    SELECT o.order_id, 
+                           COALESCE(SUM(oi.qty), 0) AS total_items, 
+                           o.total_price, 
+                           o.address, 
+                           o.order_status, 
+                           o.order_date
+                    FROM orders o
+                    LEFT JOIN order_items oi ON o.order_id = oi.order_id
+                    WHERE o.user_id = ?
+                    GROUP BY o.order_id, o.total_price, o.address, o.order_status, o.order_date
+                    ORDER BY o.order_id DESC
+                ");
                 $stmt->bind_param("i", $user_id);
                 $stmt->execute();
                 $res = $stmt->get_result();
@@ -172,23 +184,23 @@ include('includes/header.php');
                         }
 
                         $statusClass = match ($order_status) {
-                            "ordered" => "text-success",     // green
-                            "processing" => "text-primary",  // blue
-                            "cancelled" => "text-danger fw-bold", // red bold
+                            "ordered" => "text-success",
+                            "processing" => "text-primary",
+                            "cancelled" => "text-danger fw-bold",
                             default => "",
                         };
                 ?>
                 <tr>
                     <td><?= $sn++ ?></td>
-                    <td><?= htmlspecialchars($row['order_id'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($row['total_items'] ?? '0') ?></td>
+                    <td><?= htmlspecialchars($row['order_id']) ?></td>
+                    <td><?= htmlspecialchars($row['total_items']) ?></td>
                     <td><?= number_format($row['total_price'] ?? 0, 2) ?></td>
                     <td><?= htmlspecialchars($row['address'] ?? '') ?></td>
                     <td class="<?= $statusClass ?>"><?= $displayStatus ?></td>
                     <td><?= htmlspecialchars(date('Y-m-d', strtotime($row['order_date'] ?? ''))) ?></td>
                     <td>
                         <?php if ($order_status === 'ordered' || $order_status === 'processing'): ?>
-                            <a href="cancel_order.php?order_id=<?= urlencode($row['order_id'] ?? '') ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel</a>
+                            <a href="cancel_order.php?order_id=<?= urlencode($row['order_id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel</a>
                         <?php else: ?>
                             <span class="text-muted">—</span>
                         <?php endif; ?>
