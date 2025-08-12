@@ -87,7 +87,8 @@ if (isset($_POST['login'])) {
             exit;
         }
     } else {
-        echo "<script>alert('Invalid username or password!');</script>";
+        echo "<script>alert('Invalid usern
+        ame or password!');</script>";
     }
 
     mysqli_close($conn);
