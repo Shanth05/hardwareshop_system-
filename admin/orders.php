@@ -58,12 +58,14 @@ if (!$conn) {
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item"><a class="nav-link" href="dashboard.php"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="customers.php"><i class="bi bi-people me-2"></i>Registered Customers</a></li>
                         <li class="nav-item"><a class="nav-link active" href="orders.php"><i class="bi bi-cart-check me-2"></i>Orders</a></li>
-                        <li class="nav-item"><a class="nav-link" href="admins.php"><i class="bi bi-person-badge me-2"></i>Registered Admins</a></li>
                         <li class="nav-item"><a class="nav-link" href="products.php"><i class="bi bi-box-seam me-2"></i>Products</a></li>
                         <li class="nav-item"><a class="nav-link" href="categories.php"><i class="bi bi-tags me-2"></i>Categories</a></li>
                         <li class="nav-item"><a class="nav-link" href="brands.php"><i class="bi bi-building me-2"></i>Brands</a></li>
+                        <li class="nav-item"><a class="nav-link" href="customers.php"><i class="bi bi-people me-2"></i>Customers</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admins.php"><i class="bi bi-person-badge me-2"></i>Admins</a></li>
+                        <li class="nav-item"><a class="nav-link" href="pending_orders.php"><i class="bi bi-clock-history me-2"></i>Pending Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="completed_orders.php"><i class="bi bi-check-circle me-2"></i>Completed Orders</a></li>
                         <li class="nav-item mt-3 border-top pt-2"><a class="nav-link text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                     </ul>
                 </div>
@@ -94,10 +96,17 @@ if (!$conn) {
                                 <tbody>
                                     <?php
                                     $sql = "
-                                    SELECT o.order_id, o.name, o.total_price, o.address, o.order_status, o.order_date,
-                                           IFNULL(SUM(oi.qty), 0) AS total_items
+                                    SELECT 
+                                        o.order_id, 
+                                        u.name AS customer_name,
+                                        o.total_price, 
+                                        o.address, 
+                                        o.order_status, 
+                                        o.order_date,
+                                        IFNULL(SUM(oi.qty), 0) AS total_items
                                     FROM orders o
                                     LEFT JOIN order_items oi ON o.order_id = oi.order_id
+                                    LEFT JOIN users u ON o.user_id = u.user_id
                                     GROUP BY o.order_id
                                     ORDER BY o.order_date DESC
                                     ";
@@ -108,11 +117,10 @@ if (!$conn) {
                                             while ($row = mysqli_fetch_assoc($res)) {
                                                 echo "<tr>";
                                                 echo "<td>" . $sn++ . "</td>";
-                                                echo "<td>" . htmlspecialchars($row['name'] ?? 'N/A') . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['customer_name'] ?? 'N/A') . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['total_items'] ?? '0') . "</td>";
                                                 echo "<td>LKR " . number_format($row['total_price'] ?? 0, 2) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['address'] ?? 'N/A') . "</td>";
-                                                echo "<td>";
                                                 $status = $row['order_status'] ?? 'N/A';
                                                 $badge_class = match ($status) {
                                                     'ordered' => 'bg-danger',
@@ -120,12 +128,9 @@ if (!$conn) {
                                                     'delivered' => 'bg-success',
                                                     default => 'bg-secondary'
                                                 };
-                                                echo "<span class='badge $badge_class'>" . htmlspecialchars($status) . "</span>";
-                                                echo "</td>";
+                                                echo "<td><span class='badge $badge_class'>" . htmlspecialchars($status) . "</span></td>";
                                                 echo "<td>" . htmlspecialchars($row['order_date'] ?? 'N/A') . "</td>";
-                                                echo "<td>";
-                                                echo "<a href='edit_order_status.php?order_id=" . urlencode($row['order_id'] ?? '') . "' class='btn btn-primary btn-sm'>Edit</a>";
-                                                echo "</td>";
+                                                echo "<td><a href='edit_order_status.php?order_id=" . urlencode($row['order_id']) . "' class='btn btn-primary btn-sm'>Edit</a></td>";
                                                 echo "</tr>";
                                             }
                                         } else {
