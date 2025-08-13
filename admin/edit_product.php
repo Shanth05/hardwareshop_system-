@@ -179,10 +179,11 @@ if (isset($_POST['update_product'])) {
         <div class="mb-3">
           <label class="form-label">Status</label>
           <select name="status" class="form-select" required>
-            <option value="active" <?= $product['status'] === 'active' ? 'selected' : '' ?>>Active</option>
-            <option value="inactive" <?= $product['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+            <option value="available" <?= ($product['stock'] > 0 && strtolower($product['status']) === 'available') ? 'selected' : '' ?>>Available</option>
+            <option value="out of stock" <?= ($product['stock'] <= 0 || strtolower($product['status']) === 'out of stock') ? 'selected' : '' ?>>Out of Stock</option>
           </select>
         </div>
+
         <div class="mb-3">
           <label class="form-label">Current Image</label><br />
           <?php if ($product['image'] && file_exists(__DIR__ . '/../uploads/' . $product['image'])): ?>
