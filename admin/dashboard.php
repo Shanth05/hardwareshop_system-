@@ -46,7 +46,7 @@ $latest_orders = mysqli_query($conn, $latest_orders_query);
     </div>
   </div>
   <div class="col-md-3">
-    <div class="card card-gradient-info card-hover p-3 text-center shadow" onclick="location.href='product/products.php'">
+    <div class="card card-gradient-info card-hover p-3 text-center shadow" onclick="location.href='products.php'">
       <h5>Products</h5>
       <h2><?= $total_products; ?></h2>
     </div>
@@ -55,7 +55,7 @@ $latest_orders = mysqli_query($conn, $latest_orders_query);
 
 <div class="row g-4 mt-1">
   <div class="col-md-3">
-    <div class="card card-gradient-secondary card-hover p-3 text-center shadow" onclick="location.href='category/categories.php'">
+    <div class="card card-gradient-secondary card-hover p-3 text-center shadow" onclick="location.href='categories.php'">
       <h5>Categories</h5>
       <h2><?= $total_categories; ?></h2>
     </div>
