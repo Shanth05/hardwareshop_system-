@@ -55,12 +55,14 @@ if (!$conn) {
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item"><a class="nav-link" href="dashboard.php"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link active" href="customers.php"><i class="bi bi-people me-2"></i>Customers</a></li>
                         <li class="nav-item"><a class="nav-link" href="orders.php"><i class="bi bi-cart-check me-2"></i>Orders</a></li>
-                        <li class="nav-item"><a class="nav-link" href="admins.php"><i class="bi bi-person-badge me-2"></i>Admins</a></li>
                         <li class="nav-item"><a class="nav-link" href="products.php"><i class="bi bi-box-seam me-2"></i>Products</a></li>
                         <li class="nav-item"><a class="nav-link" href="categories.php"><i class="bi bi-tags me-2"></i>Categories</a></li>
                         <li class="nav-item"><a class="nav-link" href="brands.php"><i class="bi bi-building me-2"></i>Brands</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="customers.php"><i class="bi bi-people me-2"></i>Customers</a></li>
+                        <li class="nav-item"><a class="nav-link" href="admins.php"><i class="bi bi-person-badge me-2"></i>Admins</a></li>
+                        <li class="nav-item"><a class="nav-link" href="pending_orders.php"><i class="bi bi-clock-history me-2"></i>Pending Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="completed_orders.php"><i class="bi bi-check-circle me-2"></i>Completed Orders</a></li>
                         <li class="nav-item mt-3 border-top pt-2"><a class="nav-link text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                     </ul>
                 </div>
@@ -81,13 +83,12 @@ if (!$conn) {
                                     <th>Email</th>
                                     <th>Contact No</th>
                                     <th>Gender</th>
-                                    <th>Username</th>
                                     <th>User Type</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
-                                $sql = "SELECT user_id, name, mail, contact_no, gender, username, user_type FROM users WHERE user_type = 'customer'";
+                                $sql = "SELECT user_id, name, mail, contact_no, gender, user_type FROM users WHERE user_type = 'customer'";
                                 $res = mysqli_query($conn, $sql);
                                 if ($res) {
                                     $sn = 1;
@@ -99,7 +100,6 @@ if (!$conn) {
                                             echo "<td>" . htmlspecialchars($row['mail'] ?? 'N/A') . "</td>";
                                             echo "<td>" . htmlspecialchars($row['contact_no'] ?? 'N/A') . "</td>";
                                             echo "<td>" . htmlspecialchars($row['gender'] ?? 'N/A') . "</td>";
-                                            echo "<td>" . htmlspecialchars($row['username'] ?? 'N/A') . "</td>";
                                             echo "<td>" . htmlspecialchars($row['user_type'] ?? 'N/A') . "</td>";
                                             echo "</tr>";
                                         }
