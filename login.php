@@ -49,6 +49,48 @@ session_start();
                 <button type="submit" name="login" class="btn btn-primary rounded-pill">Login</button>
               </div>
             </form>
+
+            <?php
+            if (isset($_POST['login'])) {
+                $conn = mysqli_connect('localhost', 'root', '', 'kn_raam_hardware');
+                if (!$conn) {
+                    die("Database connection failed: " . mysqli_connect_error());
+                }
+
+                $username = trim($_POST['username']);
+                $password = $_POST['password'];
+
+                $stmt = $conn->prepare("SELECT user_id, username, password, user_type FROM users WHERE username = ?");
+                $stmt->bind_param("s", $username);
+                $stmt->execute();
+                $res = $stmt->get_result();
+
+                if ($res && $res->num_rows > 0) {
+                    $row = $res->fetch_assoc();
+
+                    if (password_verify($password, $row['password'])) {
+                        $_SESSION['username'] = $row['username'];
+
+                        if ($row['user_type'] === 'customer') {
+                            $_SESSION['customer_id'] = $row['user_id'];
+                            header("Location: index.php");
+                            exit;
+                        } elseif ($row['user_type'] === 'admin') {
+                            $_SESSION['admin_id'] = $row['user_id'];
+                            header("Location: admin/dashboard.php");
+                            exit;
+                        }
+                    } else {
+                        echo '<div class="alert alert-danger mt-3">Invalid password!</div>';
+                    }
+                } else {
+                    echo '<div class="alert alert-danger mt-3">Invalid username!</div>';
+                }
+
+                $stmt->close();
+                $conn->close();
+            }
+            ?>
           </div>
         </div>
       </div>
@@ -56,46 +98,3 @@ session_start();
   </div>
 </body>
 </html>
-
-<?php
-if (isset($_POST['login'])) {
-    $conn = mysqli_connect('localhost', 'root', '', 'kn_raam_hardware');
-    if (!$conn) {
-        die("Database connection failed: " . mysqli_connect_error());
-    }
-
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-    $password = $_POST['password'];
-
-    // Fetch user
-    $sql = "SELECT * FROM users WHERE username='$username'";
-    $res = mysqli_query($conn, $sql);
-
-    if ($res && mysqli_num_rows($res) > 0) {
-        $row = mysqli_fetch_assoc($res);
-
-        // Check password (secure way if using password_hash)
-        if (password_verify($password, $row['password'])) {
-
-            $_SESSION['username'] = $row['username'];
-
-            if ($row['user_type'] === 'customer') {
-                $_SESSION['customer_id'] = $row['user_id'];
-                header("Location: index.php");
-                exit;
-            } elseif ($row['user_type'] === 'admin') {
-                $_SESSION['admin_id'] = $row['user_id'];
-                header("Location: admin/dashboard.php");
-                exit;
-            }
-
-        } else {
-            echo "<script>alert('Invalid password!');</script>";
-        }
-    } else {
-        echo "<script>alert('Invalid username!');</script>";
-    }
-
-    mysqli_close($conn);
-}
-?>
