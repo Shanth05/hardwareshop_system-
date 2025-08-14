@@ -37,10 +37,39 @@ session_start();
 </div>
 
 <div class="container px-3 px-md-5">
+
+  <!-- Success / Error Messages -->
+  <?php if (isset($_SESSION['success'])): ?>
+      <div id="successAlert" class="alert alert-success">
+          <?= $_SESSION['success']; ?>
+      </div>
+      <script>
+          setTimeout(function() {
+              var alertBox = document.getElementById('successAlert');
+              if (alertBox) { alertBox.style.display = 'none'; }
+          }, 3000);
+      </script>
+      <?php unset($_SESSION['success']); ?>
+  <?php endif; ?>
+
+  <?php if (isset($_SESSION['error'])): ?>
+      <div id="errorAlert" class="alert alert-danger">
+          <?= $_SESSION['error']; ?>
+      </div>
+      <script>
+          setTimeout(function() {
+              var alertBox = document.getElementById('errorAlert');
+              if (alertBox) { alertBox.style.display = 'none'; }
+          }, 3000);
+      </script>
+      <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
+
   <div class="row align-equal gy-4">
+
     <!-- Contact Form -->
     <div class="col-lg-6 col-md-6 d-flex">
-      <form method="post" action="send_message.php" class="contact-form p-4 border rounded bg-white shadow-sm flex-grow-1 d-flex flex-column">
+      <form method="post" action="contact_message.php" class="contact-form p-4 border rounded bg-white shadow-sm flex-grow-1 d-flex flex-column">
         <div class="mb-3">
           <label for="name" class="form-label fw-bold">Your Name</label>
           <input type="text" id="name" name="name" class="form-control" placeholder="Enter your full name" required />
@@ -68,18 +97,19 @@ session_start();
         <h5 class="fw-bold mb-3">Find Us on Map</h5>
         <div class="map-responsive rounded overflow-hidden shadow-sm">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18..." 
-            width="100%" 
-            height="250" 
-            style="border:0;" 
-            allowfullscreen="" 
-            loading="lazy" 
+            src="https://www.google.com/maps/embed?pb=!1m18..."
+            width="100%"
+            height="250"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"
             title="K.N. Raam Hardware Location"
           ></iframe>
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
