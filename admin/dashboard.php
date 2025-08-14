@@ -11,6 +11,7 @@ $total_categories = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c
 $total_brands     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS count FROM brands"))['count'];
 $total_pending    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS count FROM orders WHERE order_status='Pending'"))['count'];
 $total_completed  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS count FROM orders WHERE order_status='Completed'"))['count'];
+$total_messages   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS count FROM contact_messages WHERE status='Pending'"))['count'];
 
 // ===== FETCH LATEST ORDERS =====
 $latest_orders_query = "
@@ -80,9 +81,17 @@ $latest_orders = mysqli_query($conn, $latest_orders_query);
   </div>
 </div>
 
-<!-- Latest Orders & Sales Chart -->
+<div class="row g-4 mt-1">
+  <div class="col-md-3">
+    <div class="card card-gradient-primary card-hover p-3 text-center shadow" onclick="location.href='messages.php'">
+      <h5>Pending Messages</h5>
+      <h2><?= $total_messages; ?></h2>
+    </div>
+  </div>
+</div>
+
+<!-- Latest Orders Table -->
 <div class="row mt-5">
-  <!-- Latest Orders -->
   <div class="col-md-6">
     <div class="card shadow">
       <div class="card-header">
@@ -142,30 +151,25 @@ $latest_orders = mysqli_query($conn, $latest_orders_query);
   </div>
 </div>
 
-<!-- Chart.js Script -->
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const ctx = document.getElementById('salesChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-      datasets: [{
-        label: 'Sales (LKR)',
-        data: [5000, 7000, 8000, 6000, 9000, 12000], // Replace with DB data later
-        borderColor: '#0d6efd',
-        backgroundColor: 'rgba(13, 110, 253, 0.1)',
-        tension: 0.4,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: true }
-      }
-    }
-  });
+const ctx = document.getElementById('salesChart').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [{
+      label: 'Sales (LKR)',
+      data: [5000, 7000, 8000, 6000, 9000, 12000], // Replace with dynamic DB data later
+      borderColor: '#0d6efd',
+      backgroundColor: 'rgba(13, 110, 253, 0.1)',
+      tension: 0.4,
+      fill: true
+    }]
+  },
+  options: { responsive: true, plugins: { legend: { display: true } } }
+});
 </script>
 
 <?php include('footer.php'); ?>
