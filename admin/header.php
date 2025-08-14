@@ -1,11 +1,14 @@
 <?php
 include('login_check.php'); // Keep your authentication check
 
-// Optional: database connection here if you want it available on all pages
+// Database connection (make it available globally)
 $conn = mysqli_connect("localhost", "root", "", "kn_raam_hardware");
 if (!$conn) {
     die("Database connection failed: " . mysqli_connect_error());
 }
+
+// Optional: Fetch total pending messages for dashboard badge
+$total_pending_messages = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS count FROM contact_messages WHERE status='Pending'"))['count'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,6 +22,7 @@ if (!$conn) {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 
   <style>
+    /* Dashboard card gradients */
     .card-gradient-primary { background: linear-gradient(135deg, #0d6efd, #6610f2); color: #fff; }
     .card-gradient-success { background: linear-gradient(135deg, #198754, #20c997); color: #fff; }
     .card-gradient-warning { background: linear-gradient(135deg, #ffc107, #ff922b); color: #212529; }
@@ -46,7 +50,7 @@ if (!$conn) {
 <div class="container-fluid">
   <div class="row">
     <!-- Sidebar -->
-    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-white sidebar shadow-sm collapse show" style="min-height: 100vh;">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-white sidebar shadow-sm collapse show">
       <div class="position-sticky pt-3">
         <ul class="nav flex-column">
           <li class="nav-item"><a class="nav-link" href="dashboard.php"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
@@ -58,6 +62,14 @@ if (!$conn) {
           <li class="nav-item"><a class="nav-link" href="admins.php"><i class="bi bi-person-badge me-2"></i>Admins</a></li>
           <li class="nav-item"><a class="nav-link" href="pending_orders.php"><i class="bi bi-clock-history me-2"></i>Pending Orders</a></li>
           <li class="nav-item"><a class="nav-link" href="completed_orders.php"><i class="bi bi-check-circle me-2"></i>Completed Orders</a></li>
+          <li class="nav-item">
+            <a class="nav-link d-flex justify-content-between align-items-center" href="messages.php">
+              <span><i class="bi bi-envelope me-2"></i>Messages</span>
+              <?php if($total_pending_messages > 0): ?>
+                <span class="badge bg-danger rounded-pill"><?= $total_pending_messages; ?></span>
+              <?php endif; ?>
+            </a>
+          </li>
           <li class="nav-item mt-3 border-top pt-2"><a class="nav-link text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
         </ul>
       </div>
