@@ -1,15 +1,23 @@
 <?php
 session_start();
-include('includes/db.php'); // your DB connection file
+include('includes/db.php'); // DB connection
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // ✅ Ensure user is logged in
+    if (!isset($_SESSION['customer_id'])) {
+        $_SESSION['error'] = "You must be logged in to send a message.";
+        header("Location: contact.php");
+        exit;
+    }
+
+    // Get logged-in user ID
+    $user_id = intval($_SESSION['customer_id']);
+
     // Sanitize inputs
     $name    = mysqli_real_escape_string($conn, $_POST['name']);
     $email   = mysqli_real_escape_string($conn, $_POST['email']);
     $message = mysqli_real_escape_string($conn, $_POST['message']);
-
-    // If user logged in, get user_id; else NULL
-    $user_id = isset($_SESSION['user_id']) ? intval($_SESSION['user_id']) : 'NULL';
 
     // Insert into database
     $sql = "INSERT INTO contact_messages (user_id, name, email, message, status, created_at)
