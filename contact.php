@@ -67,8 +67,10 @@ session_start();
 
   <div class="row align-equal gy-4">
 
-    <!-- Contact Form -->
-    <div class="col-lg-6 col-md-6 d-flex">
+  <!-- Contact Form -->
+  <div class="col-lg-6 col-md-6 d-flex">
+    <?php if (isset($_SESSION['customer_id'])): ?>
+      <!-- Show form for logged-in users -->
       <form method="post" action="contact_message.php" class="contact-form p-4 border rounded bg-white shadow-sm flex-grow-1 d-flex flex-column">
         <div class="mb-3">
           <label for="name" class="form-label fw-bold">Your Name</label>
@@ -84,7 +86,15 @@ session_start();
         </div>
         <button type="submit" class="btn btn-primary w-100 mt-auto">Send Message</button>
       </form>
-    </div>
+    <?php else: ?>
+      <!-- Message for public users -->
+      <div class="p-4 border rounded bg-white shadow-sm flex-grow-1 d-flex flex-column justify-content-center text-center">
+        <h5 class="fw-bold mb-3">Want to send us a message?</h5>
+        <p class="mb-3 text-muted">Please <a href="login.php" class="fw-bold">log in</a> or <a href="register.php" class="fw-bold">create an account</a> to contact us.</p>
+        <i class="bi bi-lock-fill text-secondary" style="font-size: 2rem;"></i>
+      </div>
+    <?php endif; ?>
+  </div>
 
     <!-- Contact Info -->
     <div class="col-lg-6 col-md-6 d-flex">
