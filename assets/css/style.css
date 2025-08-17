@@ -30,9 +30,9 @@ body {
     width: 100%;
 }
 
-.navbar {
+/* .navbar {
     animation: slideDown 0.5s ease-in-out;
-}
+} */
 
 .navbar-nav .nav-link {
     margin-left: 15px;
