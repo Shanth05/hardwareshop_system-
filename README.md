@@ -1,4 +1,4 @@
-# K.N. Raam Hardware - Online Management System
+## Online Management System
 
 ## Project Overview
 
