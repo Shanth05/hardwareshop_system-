@@ -5,6 +5,53 @@ include('login_check.php');
 $conn = mysqli_connect("localhost", "root", "", "kn_raam_hardware");
 if (!$conn) die("Database connection failed: " . mysqli_connect_error());
 
+// Include email notification system
+include('../includes/email_notifications.php');
+
+// Handle POST request and redirect BEFORE including header.php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_GET['order_id']) || !is_numeric($_GET['order_id'])) {
+        $_SESSION['error'] = "Invalid order ID.";
+        header("Location: orders.php");
+        exit;
+    }
+    
+    $order_id = intval($_GET['order_id']);
+    $new_status = $_POST['order_status'] ?? '';
+    $allowed_statuses = ['pending','processing','delivered','cancelled'];
+    
+    if (in_array($new_status, $allowed_statuses)) {
+        // Get current order status before update
+        $current_status_query = "SELECT order_status FROM orders WHERE order_id = ?";
+        $current_stmt = $conn->prepare($current_status_query);
+        $current_stmt->bind_param("i", $order_id);
+        $current_stmt->execute();
+        $current_result = $current_stmt->get_result();
+        $current_order = $current_result->fetch_assoc();
+        $current_status = $current_order['order_status'] ?? '';
+        
+        $update_stmt = $conn->prepare("UPDATE orders SET order_status = ? WHERE order_id = ?");
+        $update_stmt->bind_param("si", $new_status, $order_id);
+        if ($update_stmt->execute()) {
+            // Send notification only if status actually changed
+            if ($current_status !== $new_status) {
+                $email_notifications = new EmailNotifications($conn);
+                $email_notifications->sendOrderStatusUpdate($order_id, $new_status);
+            }
+            
+            $_SESSION['success'] = "Order status updated successfully!";
+        } else {
+            $_SESSION['error'] = "Failed to update: " . htmlspecialchars($conn->error);
+        }
+        $update_stmt->close();
+    } else {
+        $_SESSION['error'] = "Invalid status selected.";
+    }
+    
+    header("Location: orders.php");
+    exit;
+}
+
 $page_title = "Edit Order Status";
 include('header.php');
 
@@ -27,24 +74,6 @@ if ($result->num_rows === 0) die("Order not found.");
 $order = $result->fetch_assoc();
 
 $error = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $new_status = $_POST['order_status'] ?? '';
-    $allowed_statuses = ['pending','processing','delivered','cancelled'];
-    if (in_array($new_status, $allowed_statuses)) {
-        $update_stmt = $conn->prepare("UPDATE orders SET order_status = ? WHERE order_id = ?");
-        $update_stmt->bind_param("si", $new_status, $order_id);
-        if ($update_stmt->execute()) {
-            $_SESSION['success'] = "Order status updated successfully!";
-            header("Location: orders.php");
-            exit;
-        } else {
-            $error = "Failed to update: " . htmlspecialchars($conn->error);
-        }
-        $update_stmt->close();
-    } else {
-        $error = "Invalid status selected.";
-    }
-}
 
 $items_stmt = $conn->prepare("
 SELECT oi.order_item_id, oi.product_id, p.product_name, oi.qty, oi.price

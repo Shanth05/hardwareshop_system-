@@ -13,6 +13,9 @@ if (!$conn) {
     die("Database connection failed: " . mysqli_connect_error());
 }
 
+// Include email notification system
+include('includes/email_notifications.php');
+
 // Helper function to sanitize input
 function sanitize($conn, $data) {
     return mysqli_real_escape_string($conn, trim($data));
@@ -121,6 +124,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mysqli_stmt_execute($stmt);
     }
 
+    // Send email notifications
+    $email_notifications = new EmailNotifications($conn);
+    
+    // Send order confirmation to customer
+    $email_notifications->sendOrderConfirmation($order_id);
+    
+    // Send new order notification to admin
+    $email_notifications->sendNewOrderNotification($order_id);
+
     // Clear cart after order
     $delete_cart_sql = "DELETE FROM cart WHERE user_id = ?";
     $stmt = mysqli_prepare($conn, $delete_cart_sql);
@@ -134,3 +146,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     die("Invalid request method.");
 }
+?>

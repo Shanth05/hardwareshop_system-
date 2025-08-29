@@ -9,6 +9,37 @@ if (!$conn) {
 
 // Optional: Fetch total pending messages for dashboard badge
 $total_pending_messages = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS count FROM contact_messages WHERE status='Pending'"))['count'];
+
+// Check if notifications table exists, if not create it
+$table_check = mysqli_query($conn, "SHOW TABLES LIKE 'notifications'");
+if (mysqli_num_rows($table_check) == 0) {
+    $create_table = "
+        CREATE TABLE notifications (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            type ENUM('admin', 'customer') NOT NULL,
+            action VARCHAR(50) NOT NULL,
+            message TEXT NOT NULL,
+            reference_id INT,
+            user_id INT,
+            is_read TINYINT(1) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_type (type),
+            INDEX idx_user_id (user_id),
+            INDEX idx_is_read (is_read)
+        )
+    ";
+    mysqli_query($conn, $create_table);
+}
+
+// Fetch unread admin notifications for sidebar badge
+$unread_notifications = 0;
+$unread_notifications_query = "SELECT COUNT(*) AS count FROM notifications WHERE type='admin' AND is_read=0";
+$unread_notifications_result = mysqli_query($conn, $unread_notifications_query);
+if ($unread_notifications_result) {
+    $unread_notifications = mysqli_fetch_assoc($unread_notifications_result)['count'];
+}
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -65,6 +96,8 @@ $total_pending_messages = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*
       text-align: center;
       margin-right: 0.5rem;
     }
+    
+
   </style>
 </head>
 <body>
@@ -74,6 +107,8 @@ $total_pending_messages = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*
   <div class="container-fluid">
     <button class="btn btn-outline-light me-2 d-md-none" id="sidebarToggle"><i class="bi bi-list"></i></button>
     <span class="navbar-brand mb-0 h1">K.N. Raam Hardware - Admin Panel</span>
+    
+
   </div>
 </nav>
 
@@ -111,6 +146,14 @@ $total_pending_messages = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*
               <?php endif; ?>
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex justify-content-between align-items-center" href="notifications.php">
+              <span><i class="bi bi-bell me-2"></i>Notifications</span>
+              <?php if($unread_notifications > 0): ?>
+                <span class="badge bg-warning rounded-pill"><?= $unread_notifications; ?></span>
+              <?php endif; ?>
+            </a>
+          </li>
           <li class="nav-item"><a class="nav-link" href="profile.php"><i class="bi bi-person-circle me-2"></i>Profile</a></li>
           <li class="nav-item"><a class="nav-link" href="manage_admins.php"><i class="bi bi-person-badge me-2"></i>Manage Admins</a></li>
           <li class="nav-item mt-3 border-top pt-2"><a class="nav-link text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
@@ -120,3 +163,31 @@ $total_pending_messages = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*
 
     <!-- Main Content Start -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+
+<?php
+// Helper function to format time elapsed
+function time_elapsed_string($datetime) {
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+
+    if ($diff->y > 0) {
+        return $diff->y . ' year' . ($diff->y > 1 ? 's' : '') . ' ago';
+    }
+    if ($diff->m > 0) {
+        return $diff->m . ' month' . ($diff->m > 1 ? 's' : '') . ' ago';
+    }
+    if ($diff->d > 0) {
+        return $diff->d . ' day' . ($diff->d > 1 ? 's' : '') . ' ago';
+    }
+    if ($diff->h > 0) {
+        return $diff->h . ' hour' . ($diff->h > 1 ? 's' : '') . ' ago';
+    }
+    if ($diff->i > 0) {
+        return $diff->i . ' minute' . ($diff->i > 1 ? 's' : '') . ' ago';
+    }
+    return 'Just now';
+}
+?>
+
+

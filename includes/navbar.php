@@ -11,9 +11,31 @@ if (!isset($conn) || !$conn) {
     }
 }
 
+// Check if notifications table exists, if not create it
+$table_check = mysqli_query($conn, "SHOW TABLES LIKE 'notifications'");
+if (mysqli_num_rows($table_check) == 0) {
+    $create_table = "
+        CREATE TABLE notifications (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            type ENUM('admin', 'customer') NOT NULL,
+            action VARCHAR(50) NOT NULL,
+            message TEXT NOT NULL,
+            reference_id INT,
+            user_id INT,
+            is_read TINYINT(1) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_type (type),
+            INDEX idx_user_id (user_id),
+            INDEX idx_is_read (is_read)
+        )
+    ";
+    mysqli_query($conn, $create_table);
+}
+
 // Get cart count if logged in
 $cart_count = 0;
 $unread_messages = 0;
+$unread_notifications = 0;
 if (isset($_SESSION['customer_id'])) {
     $uid = $_SESSION['customer_id'];
     $cart_res = mysqli_query($conn, "SELECT SUM(qty) AS total_qty FROM cart WHERE user_id = $uid");
@@ -24,11 +46,48 @@ if (isset($_SESSION['customer_id'])) {
     $messages_res = mysqli_query($conn, "SELECT COUNT(*) AS count FROM contact_messages WHERE user_id = $uid AND status = 'Replied' AND seen_by_user = 0");
     $messages_row = mysqli_fetch_assoc($messages_res);
     $unread_messages = $messages_row['count'] ?? 0;
+    
+    // Get unread notifications count
+    $notifications_res = mysqli_query($conn, "SELECT COUNT(*) AS count FROM notifications WHERE user_id = $uid AND type = 'customer' AND is_read = 0");
+    $notifications_row = mysqli_fetch_assoc($notifications_res);
+    $unread_notifications = $notifications_row['count'] ?? 0;
 }
 ?>
 
 <!-- Bootstrap Icons CSS for search icon -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+
+<style>
+/* Badge styling */
+.badge {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.4rem;
+}
+
+/* Navbar icon alignment */
+.navbar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.navbar-nav .nav-link i {
+    font-size: 1.1rem;
+}
+
+/* Ensure icons are visible */
+.bi-envelope, .bi-cart3, .bi-person-circle {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-nav .nav-link {
+        padding: 0.5rem 0.75rem;
+    }
+}
+</style>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow fixed-top">
   <div class="container">
@@ -67,49 +126,64 @@ if (isset($_SESSION['customer_id'])) {
         </button>
       </form>
 
-             <!-- User Menu -->
-       <ul class="navbar-nav ms-auto">
-         <?php if (isset($_SESSION['customer_id'])): ?>
-           <!-- Messages -->
-           <li class="nav-item">
-             <a class="nav-link" href="/hardware/my_messages.php" title="My Messages">
-               <i class="bi bi-envelope"></i>
-               <?php if ($unread_messages > 0): ?>
-                 <span class="badge bg-warning"><?= $unread_messages ?></span>
-               <?php endif; ?>
-             </a>
-           </li>
-           <!-- Cart -->
-           <li class="nav-item">
-             <a class="nav-link" href="/hardware/cart.php">
-               <i class="bi bi-cart3"></i>
-               <span class="badge bg-danger"><?= $cart_count ?></span>
-             </a>
-           </li>
-                     <!-- User Dropdown -->
-           <li class="nav-item dropdown">
-             <a class="nav-link dropdown-toggle user-dropdown" href="#" id="userDropdown" role="button" onclick="toggleUserDropdown(event)" aria-expanded="false">
-               <i class="bi bi-person-circle me-1"></i>
-               <span class="user-name"><?= htmlspecialchars($_SESSION['username'] ?? 'User') ?></span>
-             </a>
-                           <div class="dropdown-menu dropdown-menu-end shadow" id="userDropdownMenu" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px; z-index: 1000;">
-                <a class="dropdown-item" href="/hardware/profile.php" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
-                  <i class="bi bi-person me-2"></i>Profile
-                </a>
-                <a class="dropdown-item" href="/hardware/orders/my_orders.php" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
-                  <i class="bi bi-box me-2"></i>My Orders
-                </a>
-                <a class="dropdown-item" href="/hardware/my_messages.php" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
-                  <i class="bi bi-envelope me-2"></i>My Messages
-                  <?php if ($unread_messages > 0): ?>
-                    <span class="badge bg-warning ms-2"><?= $unread_messages ?></span>
-                  <?php endif; ?>
-                </a>
-                <a class="dropdown-item text-danger" href="/hardware/logout.php" style="display: block; padding: 12px 16px; color: #dc3545; text-decoration: none;">
-                  <i class="bi bi-box-arrow-right me-2"></i>Logout
-                </a>
-              </div>
-           </li>
+      <!-- User Menu -->
+      <ul class="navbar-nav ms-auto">
+        <?php if (isset($_SESSION['customer_id'])): ?>
+          <!-- Messages -->
+          <li class="nav-item">
+            <a class="nav-link" href="/hardware/my_messages.php" title="My Messages">
+              <i class="bi bi-envelope"></i>
+              <?php if ($unread_messages > 0): ?>
+                <span class="badge bg-warning"><?= $unread_messages ?></span>
+              <?php endif; ?>
+            </a>
+          </li>
+          
+          <!-- Cart -->
+          <li class="nav-item">
+            <a class="nav-link" href="/hardware/cart.php">
+              <i class="bi bi-cart3"></i>
+              <?php if ($cart_count > 0): ?>
+                <span class="badge bg-danger"><?= $cart_count ?></span>
+              <?php endif; ?>
+            </a>
+          </li>
+          
+          <!-- User Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle user-dropdown position-relative" href="#" id="userDropdown" role="button" onclick="toggleUserDropdown(event)" aria-expanded="false">
+              <i class="bi bi-person-circle me-1"></i>
+              <span class="user-name"><?= htmlspecialchars($_SESSION['username'] ?? 'User') ?></span>
+              <?php if ($unread_notifications > 0): ?>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                  <?= $unread_notifications ?>
+                </span>
+              <?php endif; ?>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end shadow" id="userDropdownMenu" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px; z-index: 1000;">
+              <a class="dropdown-item" href="/hardware/profile.php" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
+                <i class="bi bi-person me-2"></i>Profile
+              </a>
+              <a class="dropdown-item" href="/hardware/orders/my_orders.php" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
+                <i class="bi bi-box me-2"></i>My Orders
+              </a>
+              <a class="dropdown-item" href="/hardware/my_messages.php" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
+                <i class="bi bi-envelope me-2"></i>My Messages
+                <?php if ($unread_messages > 0): ?>
+                  <span class="badge bg-warning ms-2"><?= $unread_messages ?></span>
+                <?php endif; ?>
+              </a>
+              <a class="dropdown-item" href="/hardware/notifications.php" style="display: block; padding: 12px 16px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
+                <i class="bi bi-bell me-2"></i>Notifications
+                <?php if ($unread_notifications > 0): ?>
+                  <span class="badge bg-danger ms-2"><?= $unread_notifications ?></span>
+                <?php endif; ?>
+              </a>
+              <a class="dropdown-item text-danger" href="/hardware/logout.php" style="display: block; padding: 12px 16px; color: #dc3545; text-decoration: none;">
+                <i class="bi bi-box-arrow-right me-2"></i>Logout
+              </a>
+            </div>
+          </li>
           
           <script>
           function toggleUserDropdown(event) {
@@ -166,6 +240,8 @@ if (isset($_SESSION['customer_id'])) {
               }
           });
           </script>
+          
+
         <?php else: ?>
           <li class="nav-item">
             <a class="nav-link" href="/hardware/login.php">

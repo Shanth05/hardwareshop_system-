@@ -84,6 +84,36 @@ $user = mysqli_fetch_assoc($user_result);
 // Fetch user's order history
 $orders_query = "SELECT * FROM orders WHERE user_id = $customer_id ORDER BY order_date DESC LIMIT 5";
 $orders_result = mysqli_query($conn, $orders_query);
+
+// Check if notifications table exists, if not create it
+$table_check = mysqli_query($conn, "SHOW TABLES LIKE 'notifications'");
+if (mysqli_num_rows($table_check) == 0) {
+    $create_table = "
+        CREATE TABLE notifications (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            type ENUM('admin', 'customer') NOT NULL,
+            action VARCHAR(50) NOT NULL,
+            message TEXT NOT NULL,
+            reference_id INT,
+            user_id INT,
+            is_read TINYINT(1) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_type (type),
+            INDEX idx_user_id (user_id),
+            INDEX idx_is_read (is_read)
+        )
+    ";
+    mysqli_query($conn, $create_table);
+}
+
+// Fetch user's notifications
+$notifications_query = "SELECT * FROM notifications WHERE user_id = $customer_id ORDER BY created_at DESC LIMIT 10";
+$notifications_result = mysqli_query($conn, $notifications_query);
+
+// Fetch unread notification count
+$unread_query = "SELECT COUNT(*) as count FROM notifications WHERE user_id = $customer_id AND is_read = 0";
+$unread_result = mysqli_query($conn, $unread_query);
+$unread_count = mysqli_fetch_assoc($unread_result)['count'];
 ?>
 
 <!DOCTYPE html>
@@ -316,6 +346,58 @@ $orders_result = mysqli_query($conn, $orders_query);
                     </div>
                 </div>
             </div>
+            
+            <!-- Notifications Section -->
+            <div class="row mt-4" id="notifications">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="bi bi-bell me-2"></i>Notifications
+                                <?php if ($unread_count > 0): ?>
+                                    <span class="badge bg-warning ms-2"><?= $unread_count ?> new</span>
+                                <?php endif; ?>
+                            </h5>
+                            <button class="btn btn-sm btn-outline-light" onclick="markAllNotificationsRead()">
+                                <i class="bi bi-check-all"></i> Mark All Read
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <?php if (mysqli_num_rows($notifications_result) > 0): ?>
+                                <div class="list-group list-group-flush">
+                                    <?php while ($notification = mysqli_fetch_assoc($notifications_result)): ?>
+                                        <div class="list-group-item list-group-item-action <?= $notification['is_read'] == 0 ? 'list-group-item-primary' : '' ?>" 
+                                             onclick="markNotificationRead(<?= $notification['id'] ?>)">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1"><?= htmlspecialchars($notification['message']) ?></h6>
+                                                    <small class="text-muted">
+                                                        <?= date('M d, Y g:i A', strtotime($notification['created_at'])) ?>
+                                                        <?php if ($notification['is_read'] == 0): ?>
+                                                            <span class="badge bg-primary ms-2">New</span>
+                                                        <?php endif; ?>
+                                                    </small>
+                                                </div>
+                                                <div class="ms-3">
+                                                    <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); deleteNotification(<?= $notification['id'] ?>)">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endwhile; ?>
+                                </div>
+                            <?php else: ?>
+                                <div class="text-center py-4">
+                                    <i class="bi bi-bell" style="font-size: 3rem; color: #ccc;"></i>
+                                    <h5 class="mt-3 text-muted">No Notifications</h5>
+                                    <p class="text-muted">You don't have any notifications yet.</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
  </div>
@@ -389,6 +471,80 @@ $orders_result = mysqli_query($conn, $orders_query);
       // Password strength indicator
       newPassword.addEventListener('input', function() {
           const password = this.value;
+      });
+      
+      // Notification functions
+      function markNotificationRead(notificationId) {
+          fetch('mark_customer_notification_read.php', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: 'notification_id=' + notificationId
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  location.reload();
+              } else {
+                  alert('Failed to mark notification as read');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('An error occurred');
+          });
+      }
+      
+      function markAllNotificationsRead() {
+          fetch('mark_all_customer_notifications_read.php', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+              }
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  location.reload();
+              } else {
+                  alert('Failed to mark all notifications as read');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('An error occurred');
+          });
+      }
+      
+      function deleteNotification(notificationId) {
+          if (confirm('Are you sure you want to delete this notification?')) {
+              fetch('delete_customer_notification.php', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                  },
+                  body: 'notification_id=' + notificationId
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      location.reload();
+                  } else {
+                      alert('Failed to delete notification');
+                  }
+              })
+              .catch(error => {
+                  console.error('Error:', error);
+                  alert('An error occurred');
+              });
+          }
+      }
+      
+      // Make functions globally available
+      window.markNotificationRead = markNotificationRead;
+      window.markAllNotificationsRead = markAllNotificationsRead;
+      window.deleteNotification = deleteNotification;
           const strength = 0;
           
           if (password.length >= 6) strength++;
