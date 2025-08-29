@@ -5,8 +5,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// If not logged in, redirect to admin login page (create login.php separately)
+// If not logged in, redirect to admin login page
 if (!isset($_SESSION['admin_id'])) {
     header('Location: login.php');
     exit();
 }
+?>

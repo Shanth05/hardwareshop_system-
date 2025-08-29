@@ -41,7 +41,7 @@ $latest_orders = mysqli_query($conn, $latest_orders_query);
     </div>
   </div>
   <div class="col-md-3">
-    <div class="card card-gradient-warning card-hover p-3 text-center shadow" onclick="location.href='admins.php'">
+    <div class="card card-gradient-warning card-hover p-3 text-center shadow" onclick="location.href='manage_admins.php'">
       <h5>Registered Admins</h5>
       <h2><?= $total_admins; ?></h2>
     </div>

@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('includes/db.php'); // DB connection
+include('includes/email_notifications.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -24,6 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             VALUES ($user_id, '$name', '$email', '$message', 'Pending', NOW())";
 
     if (mysqli_query($conn, $sql)) {
+        $message_id = mysqli_insert_id($conn);
+        
+        // Send email notification to admin
+        $email_notifications = new EmailNotifications($conn);
+        $email_notifications->sendMessageNotification($message_id);
+        
         $_SESSION['success'] = "Your message has been sent successfully!";
     } else {
         $_SESSION['error'] = "Error: " . mysqli_error($conn);

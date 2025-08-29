@@ -90,7 +90,7 @@ $res = mysqli_query($conn, $sql);
                                 </td>
                                 <td class="product-price price-cell"><?php echo number_format($total_price, 2); ?></td>
                                 <td>
-                                    <a href="remove_cart.php?cart_id=<?php echo $cart_id; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this item?');">
+                                    <a href="/hardware/remove_cart.php?cart_id=<?php echo $cart_id; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this item?');">
                                         <i class="fas fa-trash-alt"></i> Remove
                                     </a>
                                 </td>

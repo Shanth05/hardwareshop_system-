@@ -1,9 +1,17 @@
 <?php
-$page_title = "Contact Messages";
-include('header.php'); // includes login_check.php, DB connection, navbar + sidebar
-
-// Handle reply submission
+// Handle reply submission BEFORE including header.php to avoid "headers already sent" error
 if (isset($_POST['reply_msg_id'])) {
+    // Start session if not already started
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    // Database connection for this operation
+    $conn = mysqli_connect("localhost", "root", "", "kn_raam_hardware");
+    if (!$conn) {
+        die("Database connection failed: " . mysqli_connect_error());
+    }
+    
     $msg_id = intval($_POST['reply_msg_id']);
     $reply  = mysqli_real_escape_string($conn, $_POST['reply']);
 
@@ -12,6 +20,13 @@ if (isset($_POST['reply_msg_id'])) {
                    WHERE id=$msg_id";
 
     if ($conn->query($update_sql)) {
+        // Include email notifications for this operation
+        include('../includes/email_notifications.php');
+        
+        // Send email notification to customer (logged for local development)
+        $email_notifications = new EmailNotifications($conn);
+        $email_notifications->sendMessageReplyNotification($msg_id);
+        
         $_SESSION['success'] = "Reply sent successfully!";
     } else {
         $_SESSION['error'] = "Error: " . $conn->error;
@@ -19,6 +34,10 @@ if (isset($_POST['reply_msg_id'])) {
     header("Location: messages.php");
     exit();
 }
+
+$page_title = "Contact Messages";
+include('header.php'); // includes login_check.php, DB connection, navbar + sidebar
+include('../includes/email_notifications.php');
 
 // Fetch all messages
 $messages_query = "SELECT * FROM contact_messages ORDER BY created_at DESC";

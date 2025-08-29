@@ -8,6 +8,7 @@ session_start();
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Login | K.N. Raam Hardware</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
   <style>
     body {
       background: linear-gradient(135deg, #3b8d99, #6b6b83, #aa4b6b);
@@ -31,7 +32,14 @@ session_start();
       <div class="col-md-5">
         <div class="card shadow-lg rounded-4">
           <div class="card-body p-4">
-            <h3 class="text-center text-primary mb-4 fw-bold">Login</h3>
+                         <div class="text-center mb-3">
+                       <a href="/hardware/index.php" class="btn btn-outline-secondary btn-sm rounded-pill">
+          <i class="bi bi-arrow-left me-1"></i>Back to Website
+        </a>
+             </div>
+             <h3 class="text-center text-primary mb-4 fw-bold">
+               <?php echo (isset($_GET['admin']) && $_GET['admin'] == '1') ? 'Admin Login' : 'Login'; ?>
+             </h3>
             <form action="" method="POST">
               <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
@@ -41,8 +49,13 @@ session_start();
                 <label for="password" class="form-label">Password</label>
                 <input type="password" name="password" id="password" class="form-control rounded-pill" required />
               </div>
+              <div class="text-center mb-3">
+                <a href="/hardware/forgot_password.php" class="text-decoration-none text-muted">
+                  <small><i class="bi bi-question-circle me-1"></i>Forgot your password?</small>
+                </a>
+              </div>
               <p class="text-center mt-2">
-                Not registered yet? <a href="register.php" class="text-decoration-none">Sign up here</a>
+                Not registered yet? <a href="/hardware/register.php" class="text-decoration-none">Sign up here</a>
               </p>
               <div class="d-flex justify-content-end mt-4">
                 <button type="reset" class="btn btn-outline-danger me-2 rounded-pill">Clear</button>

@@ -132,7 +132,7 @@ if (empty($total_price)) {
                     </table>
 
                     <div class="text-end mt-3">
-                        <a href="index.php" class="btn btn-checkout"><i class="fas fa-shopping-bag me-2"></i>Continue Shopping</a>
+                        <a href="/hardware/index.php" class="btn btn-checkout"><i class="fas fa-shopping-bag me-2"></i>Continue Shopping</a>
                     </div>
                 </div>
             </div>
