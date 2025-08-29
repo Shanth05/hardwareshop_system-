@@ -118,9 +118,9 @@ if (isset($_SESSION['customer_id'])) {
       </ul>
 
       <!-- Search Bar - Centered -->
-      <form class="d-flex mx-auto" method="GET" action="/hardware/search.php" style="max-width: 300px;">
-        <input class="form-control me-2" type="search" name="search" placeholder="Search products..." 
-               aria-label="Search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+      <form class="d-flex mx-auto" method="GET" action="/hardware/search.php" style="max-width: 250px;">
+        <input class="form-control me-2" type="search" name="search" placeholder="Search..." 
+               aria-label="Search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" style="font-size: 0.9rem;">
         <button class="btn btn-outline-light" type="submit">
           <i class="bi bi-search"></i>
         </button>

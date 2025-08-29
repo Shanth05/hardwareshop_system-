@@ -70,7 +70,7 @@ $products = mysqli_query($conn, "
             $status = $row['status'];
 
             // Use default image if missing
-            $image_path = !empty($image) ? "images/products/" . htmlspecialchars($image) : "images/products/default.jpg";
+            $image_path = !empty($image) ? "uploads/" . htmlspecialchars($image) : "uploads/default.jpg";
 
             // Status color classes
             $status_class = '';
@@ -84,9 +84,12 @@ $products = mysqli_query($conn, "
         ?>
             <div class="col-md-3 col-sm-6">
                 <div class="card product-card h-100">
-                    <img src="<?php echo $image_path; ?>" 
-                         class="card-img-top product-img" 
-                         alt="<?php echo htmlspecialchars($product_name); ?>">
+                    <a href="product_details.php?product_id=<?php echo $product_id; ?>" class="text-decoration-none">
+                        <img src="<?php echo $image_path; ?>" 
+                             class="card-img-top product-img" 
+                             alt="<?php echo htmlspecialchars($product_name); ?>"
+                             style="cursor: pointer;">
+                    </a>
                     <div class="card-body d-flex flex-column">
                         <h5 class="fw-bold mb-2">
                             <a href="product_details.php?product_id=<?php echo $product_id; ?>" 
