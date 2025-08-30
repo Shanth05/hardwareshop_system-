@@ -1,4 +1,4 @@
-# K.N. Raam Hardware - Online Management System
+#  Online Management System
 
 A comprehensive online management system for K.N. Raam Hardware shop in Kurukkalmadam, Batticaloa. This system transforms a traditional hardware store into a modern, efficient online business platform.
 
